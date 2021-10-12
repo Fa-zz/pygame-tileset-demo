@@ -1,6 +1,7 @@
 # Tilegame setup
 import pygame as pg
 import sys
+from os import path
 from settings import *
 from sprites import *
 
@@ -16,15 +17,21 @@ class Game:
         self.load_data()
 
     def load_data(self):
-        pass
-
+        game_folder = path.dirname(__file__) # This is the folder wherever main.py is running from
+        self.map_data = []
+        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
+            for line in f:
+                self.map_data.append(line)
     def new(self):
         # Initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        self.player = Player(self, 10, 10) # Initializes player object at x=10 y=10
-        for x in range(10, 20): # From 10 to 19
-            Wall(self, x, 5) # At y = 5, create a wall object and initialize 10 times
+        for row, tiles in enumerate(self.map_data): # goes through the index and value of a list. row=index tiles=value
+            for col, tile in enumerate(tiles): #col=index, tile=value
+                if tile == '1':
+                    Wall(self, col, row)
+                if tile == 'P':
+                    self.player = Player(self, col, row)  # Initializes player object at x=col, y=row
 
     def run(self):
         # game loop - set self.playing = false to end the game

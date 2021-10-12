@@ -13,9 +13,16 @@ class Player(pg.sprite.Sprite):
         self.x = x
         self.y = y # This x and y keeps track of which grid coordinate we are on
 
-    def move(self, dx = 0, dy = 0):
-        self.x += dx
-        self.y += dy
+    def move(self, dx=0, dy=0):
+        if self.collide_with_walls(dx, dy):
+            self.x += dx
+            self.y += dy
+
+    def collide_with_walls(self, dx=0, dy=0):
+        for wall in self.game.walls:
+            if wall.x == self.x + dx and wall.y == self.y + dy:
+                return False
+        return True
 
     def update(self):
         self.rect.x = self.x * TILESIZE
@@ -33,4 +40,3 @@ class Wall(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
-
