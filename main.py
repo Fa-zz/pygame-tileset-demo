@@ -4,6 +4,7 @@ import sys
 from os import path
 from settings import *
 from sprites import *
+from tilemap import *
 
 # from sprites import *
 
@@ -18,20 +19,23 @@ class Game:
 
     def load_data(self):
         game_folder = path.dirname(__file__) # This is the folder wherever main.py is running from
-        self.map_data = []
-        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
-            for line in f:
-                self.map_data.append(line)
+        # self.map_data = []
+        # with open(path.join(game_folder, 'map.txt'), 'rt') as f:
+        #     for line in f:
+        #         self.map_data.append(line)
+        self.map = Map(path.join(game_folder, 'map2.txt'))
+
     def new(self):
         # Initialize all variables and do all the setup for a new game
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
-        for row, tiles in enumerate(self.map_data): # goes through the index and value of a list. row=index tiles=value
+        for row, tiles in enumerate(self.map.data): # goes through the index and value of a list. row=index tiles=value
             for col, tile in enumerate(tiles): #col=index, tile=value
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == 'P':
                     self.player = Player(self, col, row)  # Initializes player object at x=col, y=row
+        self.camera = Camera(self.map.width, self.map.height)
 
     def run(self):
         # game loop - set self.playing = false to end the game
@@ -49,6 +53,7 @@ class Game:
     def update(self):
         # update portion of the game loop
         self.all_sprites.update()
+        self.camera.update(self.player)
 
     def draw_grid(self):
         for x in range(0, WIDTH, TILESIZE):  # Draws horizontal lines
@@ -59,8 +64,10 @@ class Game:
     def draw(self):
         self.screen.fill(BGCOLOR)
         self.draw_grid()
-        self.all_sprites.draw(self.screen)
-        pg.display.flip()
+        #self.all_sprites.draw(self.screen)
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))# Loop through all sprites and blit them to the screen
+        pg.display.flip()                   # self.screen.blit()
 
     def events(self):
         # catch all events here
